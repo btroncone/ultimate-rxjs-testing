@@ -1,0 +1,17 @@
+{
+  "name": "rxjs-ultimate-testing",
+  "version": "1.0.0",
+  "description": "Code for UltimateRxJS testing lessons",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Brian Troncone",
+  "license": "MIT",
+  "dependencies": {
+    "rxjs": "^6.5.3"
+  },
+  "devDependencies": {
+    "@types/jasmine": "^3.5.0",
+    "jasmine": "^3.5.0"
+  }
+}
