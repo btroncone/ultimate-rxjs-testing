@@ -81,4 +81,21 @@ describe('subscribe / assert testing in RxJS', () => {
       });
     });
   });
+
+  it('should let you test errors and error messages', () => {
+      const source$ = of(1, 2, 3).pipe(
+        map(val => {
+          if (val > 2) {
+            throw 'Number too high!';
+          }
+          return val;
+        })
+      );
+
+      source$.subscribe({
+        error: err => {
+          expect(err).toBe('Number too high!');
+        }
+      });
+  });
 });
