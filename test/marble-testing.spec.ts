@@ -8,7 +8,8 @@ import {
   concatMap,
   delay,
   debounceTime,
-  mapTo
+  mapTo,
+  catchError
 } from 'rxjs/operators';
 import { TestScheduler } from 'rxjs/testing';
 
@@ -190,21 +191,18 @@ describe('marble testing in RxJS', () => {
   it('should let you test errors and error messages', () => {
     testScheduler.run(helpers => {
       const { expectObservable } = helpers;
-      const source$ = of(1, 2, 3).pipe(
-        map(val => {
-          if (val > 2) {
-            throw 'Number too high!';
-          }
-          return val;
-        }),
-        retry(2)
+      const source$ = of({ first: 'Brian', last: 'Smith' }, null).pipe(
+        map(o => `${o.first} ${o.last}`),
+        catchError(() => {
+          throw 'Invalid response!'
+        })
       );
 
-      const expected = '(ababab#)';
+      const expected = '(a#)';
       expectObservable(source$).toBe(
         expected,
-        { a: 1, b: 2 },
-        'Number too high!'
+        { a: 'Brian Smith' },
+        'Invalid response!'
       );
     });
   });

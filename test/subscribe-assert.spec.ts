@@ -1,21 +1,10 @@
 import { of } from 'rxjs';
-import {
-  toArray,
-  delay,
-  map
-} from 'rxjs/operators';
+import { toArray, delay, map, catchError } from 'rxjs/operators';
 import { TestScheduler } from 'rxjs/testing';
 
-let testScheduler: TestScheduler;
-
 describe('subscribe / assert testing in RxJS', () => {
-  beforeEach(() => {
-    testScheduler = new TestScheduler((actual, expected) => {
-      expect(actual).toEqual(expected);
-    });
-  });
   /*
-   *  With subscribe / assert pattern we do not use the 
+   *  With subscribe / assert pattern we do not use the
    *  expectObservable helper function. Instead we simply
    *  subscribe and use our test frameworks built in assertions.
    *  In order to confirm streams that emit multiple values, one
@@ -56,46 +45,48 @@ describe('subscribe / assert testing in RxJS', () => {
     const source$ = of(1, 2, 3);
     const expected = [1, 2, 3];
 
-    source$.pipe(delay(10), toArray()).subscribe(result => {
+    source$.pipe(delay(100), toArray()).subscribe(result => {
       expect(result).toEqual(expected);
       done();
     });
   });
 
   /*
-   *  We could also use testScheduler.run to make our async
+   *  We could also supply the test scheduler to make our async
    *  operators synchronous. Unfortunately with subscribe / assert
    *  there is no great way to confirm time in our assertions, only
    *  that the final emitted values match. This is one downside vs
    *  testing with marble diagrams, as seen in the previous section.
+   *  However, with this approach our test will execute synchronously, where
+   *  with the previous approach it would cost 100ms on the delay.
    */
   it('should compare each emitted value async - testScheduler', () => {
-    testScheduler.run(helpers => {
-      let index = 0;
-      const source$ = of(1, 2, 3);
-      const expected = [1, 2, 3];
+    const scheduler = new TestScheduler(() => {});
+    const source$ = of(1, 2, 3);
+    const expected = [1, 2, 3];
 
-      source$.pipe(delay(10)).subscribe(val => {
-        expect(val).toEqual(expected[index]);
-        index++;
-      });
+    source$.pipe(delay(100, scheduler), toArray()).subscribe(result => {
+      expect(result).toEqual(expected);
     });
+
+    scheduler.flush();
   });
 
   it('should let you test errors and error messages', () => {
-      const source$ = of(1, 2, 3).pipe(
-        map(val => {
-          if (val > 2) {
-            throw 'Number too high!';
-          }
-          return val;
-        })
-      );
+    const source$ = of({ first: 'Brian', last: 'Smith' }, null).pipe(
+      map(o => `${o.first} ${o.last}`),
+      catchError(() => {
+        throw 'Invalid response!';
+      })
+    );
 
-      source$.subscribe({
-        error: err => {
-          expect(err).toBe('Number too high!');
-        }
-      });
+    source$.subscribe({
+      next: name => {
+        expect(name).toBe('Brian Smith');
+      },
+      error: err => {
+        expect(err).toBe('Invalid response!');
+      }
+    });
   });
 });
