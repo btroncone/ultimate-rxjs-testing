@@ -1,6 +1,12 @@
 module.exports = function(config) {
   config.set({
     frameworks: ["jasmine", "karma-typescript"],
+    plugins: [
+      "jasmine",
+      "karma-chrome-launcher",
+      "karma-jasmine",
+      "karma-typescript"
+    ],
     files: [
       "test/*.ts"
     ],

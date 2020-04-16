@@ -7,11 +7,12 @@ git clone https://github.com/btroncone/ultimate-rxjs-testing.git
 npm install
 ```
 
-This project is currently configured to run with WallabyJS but feel free to swap out with your favorite test runner / environment!
+This project is currently configured to run with WallabyJS, but feel free to swap out with your favorite test runner / environment! Steps for running with Karma are below:
 
-## Running with Karma (additional steps)
+## Running with Karma
 
 ```bash
-npm install -g karma karma-typescript
-karma start
+git clone https://github.com/btroncone/ultimate-rxjs-testing.git
+npm install
+npm test
 ```
